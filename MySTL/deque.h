@@ -13,21 +13,21 @@ namespace mystl
         return n == 0 ? (sz < 512 ? 512 / sz : 1) : n;
     }
 
-    //迭代器设计
-    template <class T, class Ref, class Ptr, class BufSize>
-    struct __deque_iterator : public iterator<random_access_iterator_tag, T>
-    {
-        typedef __deque_iterator<T, T &, T *, BufSize> iterator;
-        typedef __deque_iterator<T, const T &, const T *, BufSize> const_iterator;
-        typedef __deque_iterator self;
-        typedef T value_type;
-        typedef Ptr pointer;
-        typedef Ref reference;
-        typedef size_t size_type;
-        typedef ptrdiff_t difference_type;
-        typedef T **map_pointer;
+// deque 的迭代器设计
+template <class T, class Ref, class Ptr, size_t BufSiz>
+struct __deque_iterator : public iterator<random_access_iterator_tag, T> {
+    typedef __deque_iterator<T, T&, T*, BufSiz>                iterator;
+    typedef __deque_iterator<T, const T&, const T*, BufSiz>    const_iterator;
+    typedef __deque_iterator                                   self;
+        
+    typedef T            value_type;
+    typedef Ptr          pointer;
+    typedef Ref          reference;
+    typedef size_t       size_type;
+    typedef ptrdiff_t    difference_type;
+    typedef T**          map_pointer;
 
-        static size_t buffer_size() { return __deque_buf_size(BufSize, sizeof(T)); }
+    static size_t buffer_size() { return __deque_buf_size(BufSiz, sizeof(T)); }
 
         T *cur;           //指向所在缓冲区当前元素
         T *first;         //指向所在缓冲区的头部
