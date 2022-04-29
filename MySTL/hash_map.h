@@ -3,6 +3,7 @@
 
 #include "hashtable.h"
 
+namespace mystl {
 // 参数一代表键值类型，参数二代表实值类型，参数三代表哈希函数，缺省使用 mystl 的 hash
 // 参数四代表键值比较方式，缺省使用 mystl 的 equal_to，参数五代表空间配置器类型，缺省使用 mystl 的 alloc
 // 使用方法与 map 类似，使用 hashtable 作为底层机制，所以 hash_map 内的元素不会自动排序
@@ -12,9 +13,8 @@ class hash_map
 {
 private:
     // 使用 hash_table 作为底层机制
-    typedef hashtable<mystl::pair<const Key, T>, Key, HashFcn,
-                      mystl::selectfirst<mystl::pair<const Key, T>>, EqualKey, Alloc>
-        rep_type;
+    typedef hashtable<mystl::pair<const Key, T>, Key, HashFcn, 
+        mystl::selectfirst<mystl::pair<const Key, T>>, EqualKey, Alloc>  rep_type;
     rep_type ht_;
 
 public:
@@ -51,17 +51,8 @@ public:
     hash_map(const hash_map &rhs) : ht_(rhs.ht_) {}
     hash_map(hash_map &&rhs) : ht_(std::move(rhs.ht_)) {}
 
-    hash_map &operator=(const hash_map &rhs)
-    {
-        ht_ = rhs.ht_;
-        return *this;
-    }
-    hash_map &operator=(hash_map &&rhs)
-    {
-        ht_ = std::move(rhs.ht_);
-        return *this;
-    }
-
+    hash_map& operator=(const hash_map& rhs) { ht_ = rhs.ht_; return *this; }
+    hash_map& operator=(hash_map&& rhs)      { ht_ = std::move(rhs.ht_); return *this; }
     // 全部使用 insert_unique，键值不允许重复
     template <class InputIterator>
     hash_map(InputIterator first, InputIterator last)
@@ -180,8 +171,7 @@ class hash_multimap
 private:
     // 使用 hash_table 作为底层机制
     typedef hashtable<pair<const Key, T>, Key, HashFcn,
-                      mystl::selectfirst<pair<const Key, T>>, EqualKey, Alloc>
-        rep_type;
+        mystl::selectfirst<pair<const Key, T>>, EqualKey, Alloc>  rep_type;
     rep_type ht_;
 
 public:
@@ -218,16 +208,8 @@ public:
     hash_multimap(const hash_multimap &rhs) : ht_(rhs.ht_) {}
     hash_multimap(hash_multimap &&rhs) : ht_(std::move(rhs.ht_)) {}
 
-    hash_multimap &operator=(const hash_multimap &rhs)
-    {
-        ht_ = rhs.ht_;
-        return *this;
-    }
-    hash_multimap &operator=(hash_multimap &&rhs)
-    {
-        ht_ = std::move(rhs.ht_);
-        return *this;
-    }
+    hash_multimap& operator=(const hash_multimap& rhs) { ht_ = rhs.ht_; return *this; }
+    hash_multimap& operator=(hash_multimap&& rhs)      { ht_ = std::move(rhs.ht_); return *this; }
 
     // 全部使用 insert_equal，键值允许重复
     template <class InputIterator>
@@ -342,4 +324,6 @@ void swap(hash_multimap<Key, T, HashFcn, EqualKey, Alloc> &lhs,
     lhs.swap(rhs);
 }
 
-#endif
+} // namespace mystl
+#endif // !MYTINYSTL_HASH_MAP_H_
+
