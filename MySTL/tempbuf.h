@@ -31,7 +31,7 @@ namespace mystl
             len = INT_MAX / sizeof(T);
         while (len > 0)
         {
-            T *tmp = static_cast<T *>(malloc(static_cast<size_T>(len) * sizeof(T)));
+            T *tmp = static_cast<T *>(malloc(static_cast<size_t>(len) * sizeof(T)));
             if (tmp)
                 return pair<T *, ptrdiff_t>(tmp, len); //成功就返回
             len /= 2;                                  //失败则减少
@@ -70,7 +70,7 @@ namespace mystl
 
     private:
         void __allocate_buffer();
-        void __initialize_buffer(const T &, __true_bype) {}
+        void __initialize_buffer(const T &, __true_type) {}
         void __initialize_buffer(const T &value, __false_type) { mystl::uninitialized_fill_n(buffer, len, value); }
 
     private:

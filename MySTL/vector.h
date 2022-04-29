@@ -149,7 +149,7 @@ class vector {
     template <class T, class Alloc>
     vector<T, Alloc>::vector(const vector &rhs)
     {
-        __range_initialize(rhs.start_, rsh.finish_);
+        __range_initialize(rhs.start_, rhs.finish_);
     }
 
 // 移动构造函数
@@ -325,7 +325,7 @@ void vector<T, Alloc>::insert(iterator position, size_type n, const value_type& 
     typename vector<T, Alloc>::iterator
     vector<T, Alloc>::erase(iterator first, iterator last)
     {
-        mystl::copy(last, finish_, first);
+        auto i = mystl::copy(last, finish_, first);
 
         mystl::destroy(i, finish_);
         finish_ = finish_ - (last - first);
@@ -427,7 +427,7 @@ void vector<T, Alloc>::__destroy_and_deallocate() {
         }
         else
         {
-            erase(mystl::fill_n(start_, value), finish_);
+            erase(mystl::fill_n(start_,n, value), finish_);
         }
     }
 
@@ -503,7 +503,7 @@ void vector<T, Alloc>::__destroy_and_deallocate() {
                 data_allocator::deallocate(new_start, len);
             }
             __destroy_and_deallocate();
-            start = new_start;
+            start_ = new_start;
             finish_ = new_finish;
             end_of_storage_ = new_start + len;
         }
@@ -660,7 +660,7 @@ void vector<T, Alloc>::__insert_dispatch(iterator position, InputIterator first,
         template <class T, class Alloc>
         inline bool operator==(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
         {
-            return lhs.size() == rhs.size() && mystl::equal(lhs.begin(), lhs.end(), rhs.begin())
+            return lhs.size() == rhs.size() && mystl::equal(lhs.begin(), lhs.end(), rhs.begin());
         }
 
         template <class T, class Alloc>
