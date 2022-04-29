@@ -48,12 +48,11 @@ namespace mystl
         T operator()(const T &x, const T &y) const { return x / y; }
     };
 
-    //函数对象：取模
-    template <class T>
-    struct modules : public binary_function<T, T, T>
-    {
-        T operator()(const T &x, const T &y) const { return x % y; }
-    };
+// 函数对象：模取
+template <class T>
+struct modulus :public binary_function<T, T, T> {
+    T operator()(const T& x, const T& y) const { return x % y; }
+};
 
     //函数对象：否定
     template <class T>
@@ -70,12 +69,11 @@ namespace mystl
     template <class T>
     inline T identity_element(multiplies<T>) { return T(1); }
 
-    //函数对象：等于
-    template <class T>
-    struct equal_to : public binary_function<T, T, T>
-    {
-        T operator()(const T &x, const T &y) const { return x == y; }
-    };
+// 函数对象：等于
+template <class T>
+struct equal_to :public binary_function<T, T, bool> {
+    bool operator()(const T& x, const T& y) const { return x == y; }
+};
 
     //函数对象：不等于
     template <class T>
