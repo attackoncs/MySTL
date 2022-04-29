@@ -7,38 +7,41 @@
 namespace mystl
 {
 
-    //第一个参数代表数据类型，第二个代表分配器类型，默认alloc
-    template <class T, class Alloc = mystl::alloc>
-    class vector
-    {
-    public:
-        typedef T value_type;
-        typedef Alloc allocator_type;
-        typedef value_type *pointer;
-        typedef const value_type *const_pointer;
-        typedef value_type &const_reference;
-        typedef size_t size_type;
-        typedef ptrdiff_t difference_type;
+// 模板类: vector
+// 接受两个参数，参数一代表数据类型，参数二代表空间配置器类型，缺省使用 mystl 的 alloc
+template <class T, class Alloc = mystl::alloc>
+class vector {
+  public:
+    // vector 的嵌套型别定义
+    typedef T                                          value_type;
+    typedef Alloc                                      allocator_type;
+    typedef value_type*                                pointer;
+    typedef const value_type*                          const_pointer;
+    typedef value_type&                                reference;
+    typedef const value_type&                          const_reference;
+    typedef size_t                                     size_type;
+    typedef ptrdiff_t                                  difference_type;
 
-        typedef value_type *iterator;
-        typedef const value_type *const_iterator;
-        typedef mystl::reverse_iterator<iterator> reverse_iterator;
-        typedef mystl::reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef value_type*                                iterator;
+    typedef const value_type*                          const_iterator;
+    typedef mystl::reverse_iterator<iterator>          reverse_iterator;
+    typedef mystl::reverse_iterator<const_iterator>    const_reverse_iterator;
 
-        typedef mystl::allocator<T, Alloc> data_allocator;
-        allocator_type get_allocator() { return allocator_type(); }
+    typedef mystl::allocator<T, Alloc>                 data_allocator;
+    allocator_type get_allocator() { return allocator_type(); }
 
-    private:
-        iterator start_;         //目前使用空间头
-        iterator finish_;        //目前使用空间尾
-        iterator end_of_storage; //目前可用空间尾
+  private:
+    iterator start_;           //表示目前使用空间的头
+    iterator finish_;          //表示目前使用空间的尾
+    iterator end_of_storage_;  //表示目前可用空间的尾
 
-    public:
-        vector() : start_(nullptr), finish_(nullptr), end_of_storage(nullptr) {}
-        explicit vector(size_type n) { __fill_initialize(n, value_type()); }
-        vector(size_type n, const value_type &value) { __fill_initialize(n, value); }
-        template <class InputIterator>
-        vector(InputIterator first, InputIterator last);
+  public:
+    // 构造、复制、移动、析构函数
+    vector() :start_(nullptr), finish_(nullptr), end_of_storage_(nullptr) {}
+    explicit vector(size_type n)                 { __fill_initialize(n, value_type()); }
+    vector(size_type n, const value_type& value) { __fill_initialize(n, value); }
+    template <class InputIterator>
+    vector(InputIterator first, InputIterator last);
 
         vector(const vector &rhs);
         vector(vector &&rhs);
@@ -48,39 +51,42 @@ namespace mystl
 
         ~vector() { __destroy_and_deallocate(); }
 
-    public:
-        iterator begin() { return start_; }
-        const_iterator begin() const { return start_; }
-        iterator end() { return end_; }
-        const_iterator end() const { return end_; }
-        reverse_iterator rbegin() { return reverse_iterator(end()); }
-        const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
-        reverse_iterator rend() { return reverse_iterator(begin()); }
-        const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
+  public:
+    // 迭代器相关操作
+    iterator               begin()        { return start_; }
+    const_iterator         begin()  const { return start_; }
+    iterator               end()          { return finish_; }
+    const_iterator         end()    const { return finish_; }
+    reverse_iterator       rbegin()       { return reverse_iterator(end()); }
+    const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+    reverse_iterator       rend()         { return reverse_iterator(begin()); }
+    const_reverse_iterator rend()   const { return const_reverse_iterator(begin()); }
 
-        bool empty() const { return begin() == end(); }
-        size_type size() const { return static_cast<size_type>(end() - begin()); }
-        size_type max_size() const { return static_cast<size_type>(-1) / sizeof(T); }
-        size_type capacity() const { return static_cast<size_type>(end_of_storage - start_); }
-        void shrink_to_fit();
-        void reserve(size_type n);
+    // 容量相关操作
+    bool      empty()    const { return begin() == end(); }
+    size_type size()     const { return static_cast<size_type>(end() - begin()); }
+    size_type max_size() const { return static_cast<size_type>(-1) / sizeof(T); }
+    size_type capacity() const { return static_cast<size_type>(end_of_storage_ - start_); }
+    void      shrink_to_fit();
+    void      reserve(size_type n);
 
-        reference operator[](difference_type n) { return *(begin() + n); }
-        const_reference operator[](difference_type n) const { return *(begin() + n); }
-        reference at(difference_type n) { return *(this)[n]; }
-        const_reference at(difference_type n) const { return *(this)[n]; }
-        reference front() const { return *begin(); }
-        const_reference front() const { return *begin(); }
-        reference back() const { return *(end() - 1); }
-        const_reference back() const { return *(end() - 1); }
-        pointer data() { return begin(); }
-        const_pointer data() const { return begin(); }
+    // 访问元素相关操作
+    reference       operator[](difference_type n)       { return *(begin() + n); }
+    const_reference operator[](difference_type n) const { return *(begin() + n); }
+    reference       at(difference_type n)               { return (*this)[n]; }
+    const_reference at(difference_type n)         const { return (*this)[n]; }
+    reference       front()                             { return *begin(); }
+    const_reference front()                       const { return *begin(); }
+    reference       back()                              { return *(end() - 1); }
+    const_reference back()                        const { return *(end() - 1); }
+    pointer         data()                              { return begin(); }
+    const_pointer   data()                        const { return begin(); }
 
-        //修改容器相关操作
-        void assign(size_type n) { __fill_initialize(n, value_type()); }
-        void assign(size_type n, const value_type &value) { __fill_initialize(n, value); }
-        template <class InputIterator>
-        void assign(InputIterator first, InputIterator last);
+    // 修改容器相关操作
+    void     assign(size_type n)                          { __fill_assign(n, value_type()); }
+    void     assign(size_type n, const value_type& value) { __fill_assign(n, value); }
+    template <class InputIterator>
+    void     assign(InputIterator first, InputIterator last);
 
         void push_back(const value_type &value);
         void pop_back();
@@ -91,17 +97,14 @@ namespace mystl
         template <class InputIterator>
         void insert(iterator position, InputIterator first, InputIterator last);
 
-        iterator erase(iterator position);
-        iterator erase(iterator first, iterator last);
-        void clear();
-        {
-            erase(begin(), end());
-        }
+    iterator erase(iterator position);
+    iterator erase(iterator first, iterator last);
+    void     clear()                                      { erase(begin(), end()); }
 
-        void resieze(size_type new_size) { return resize(new_size, value_type()); }
-        void resize(size_type new_size, const value_type &value);
-        void reverse() { mystl::reverse(begin(), end()); }
-        void swap(vector &rhs);
+    void     resize(size_type new_size)                   { return resize(new_size, value_type()); }
+    void     resize(size_type new_size, const value_type& value);
+    void     reverse()                                    { mystl::reverse(begin(), end()); }
+    void     swap(vector& rhs);
 
     private:
         template <class Integer>
@@ -149,56 +152,52 @@ namespace mystl
         __range_initialize(rhs.start_, rsh.finish_);
     }
 
-    // 移动构造函数
-    template <class T, class Alloc>
-    vector<T, Alloc>::vector(vector &&rhs) : start_(rhs.start_),
-                                             finish_(rhs.finish_), end_of_storage_(rhs.end_of_storage_)
-    {
-        rhs.start_ = rhs.finish_ = rhs.end_of_storage_ = nullptr;
-    }
+// 移动构造函数
+template <class T, class Alloc>
+vector<T, Alloc>::vector(vector&& rhs) :start_(rhs.start_), 
+    finish_(rhs.finish_), end_of_storage_(rhs.end_of_storage_) {
+    rhs.start_ = nullptr;
+    rhs.finish_ = nullptr;
+    rhs.end_of_storage_ = nullptr;
+}
 
-    // 复制赋值操作符
-    template <class T, class Alloc>
-    vector<T, Alloc> &vector<T, Alloc>::operator=(const vector &rhs)
-    {
-        if (this != &rhs)
-        {
-            const auto xlen = rhs.size();
-            if (xlen > capacity())
-            {
-                __destroy_and_deallocate();
-                __range_initialize(rhs.begin(), rhs.end());
-            }
-            else if (size() >= xlen)
-            { //原vector大于等于要赋值vector大小
-                auto i = mystl::copy(rhs.begin(), rhs.end(), begin());
-                mystl::destroy(i, finish_);
-                finish_ = start_ + xlen;
-            }
-            else
-            { //原vector小于要赋值的vector大小
-                auto i = mystl::copy(rhs.begin(), rhs.begin() + size(), start_);
-                mystl::uninitialized_copy(rhs.begin() + size(), rhs.end(), finish_;);
-                end_of_storage_ = finish_ = start_ + xlen;
-            }
-        }
-        return *this;
-    }
-
-    // 移动赋值操作符
-    template <class T, class Alloc>
-    vector<T, Alloc> &vector<T, Alloc>::operator=(vector &&rhs)
-    {
-        if (this != &rhs)
-        {
+// 复制赋值操作符
+template <class T, class Alloc>
+vector<T, Alloc>& vector<T, Alloc>::operator=(const vector& rhs) {
+    if (this != &rhs) {
+        const auto xlen = rhs.size();
+        if (xlen > capacity()) {    // 如果要赋值的 vector 大小超过原 vector 容量大小
             __destroy_and_deallocate();
-            start_ = rhs.start_;
-            finish_ = rhs.finish_;
-            end_of_storage_ = rhs.end_of_storage_;
-            rhs.start_ = rhs.finish_ = rhs.end_of_storage_ = nullptr;
+            __range_initialize(rhs.begin(), rhs.end());
         }
-        return *this;
+        else if (size() >= xlen) {  // 如果原 vector 大小大于等于要赋值的 vector 大小
+            auto i = mystl::copy(rhs.begin(), rhs.end(), begin());
+            mystl::destroy(i, finish_);
+            finish_ = start_ + xlen;
+        }
+        else {                      // 如果原 vector 大小小于要赋值的 vector 大小
+            mystl::copy(rhs.begin(), rhs.begin() + size(), start_);
+            mystl::uninitialized_copy(rhs.begin() + size(), rhs.end(), finish_);
+            end_of_storage_ = finish_ = start_ + xlen;
+        }
     }
+    return *this;
+}
+
+// 移动赋值操作符
+template <class T, class Alloc>
+vector<T, Alloc>& vector<T, Alloc>::operator=(vector&& rhs) {
+    if (this != &rhs) {
+        __destroy_and_deallocate();  // 释放原资源
+        start_ = rhs.start_;
+        finish_ = rhs.finish_;
+        end_of_storage_ = rhs.end_of_storage_;
+        rhs.start_ = nullptr;
+        rhs.finish_ = nullptr;
+        rhs.end_of_storage_ = nullptr;
+    }
+    return *this;
+}
 
     // 放弃多余的容量
     template <class T, class Alloc>
@@ -294,12 +293,11 @@ namespace mystl
         return begin() + n;
     }
 
-    // 在 position 位置开始插入 n 个元素
-    template <class T, class Alloc>
-    void vector<T, Alloc>::insert(iterator position, size_type n, const value_type &value)
-    {
-        __fill_initialize(position, n, value);
-    }
+// 在 position 位置开始插入 n 个元素
+template <class T, class Alloc>
+void vector<T, Alloc>::insert(iterator position, size_type n, const value_type& value) {
+    __fill_insert(position, n, value);
+}
 
     // 在 position 位置插入[first, last)内的元素
     template <class T, class Alloc>
@@ -391,13 +389,12 @@ namespace mystl
         end_of_storage_ = finish_;
     }
 
-    // __destroy_and_deallocate 函数//释放原资源
-    template <class T, class Alloc>
-    void vector<T, Alloc>::__destroy_and_deallocate()
-    {
-        mystl::destroy(start_, finish_);
-        data_allocator::deallocate(finish_, end_of_storage_ - start_);
-    }
+// __destroy_and_deallocate 函数
+template <class T, class Alloc>
+void vector<T, Alloc>::__destroy_and_deallocate() {
+    mystl::destroy(start_, finish_);
+    data_allocator::deallocate(start_, end_of_storage_ - start_);
+}
 
     // __assign_dispatch 函数
     template <class T, class Alloc>
@@ -520,15 +517,12 @@ namespace mystl
         __fill_insert(position, static_cast<size_type>(n), static_cast<T>(x));
     }
 
-    template <class T, class Alloc>
-    template <class InputIterator>
-    void vector<T, Alloc>::__insert_dispatch(iterator position, InputIterator first,
-                                             InputIterator last, __false_type)
-    {
-        InputIterator last, __false_type)
-        {
-            __range_insert(position, first, last, mystl::iterator_category(first));
-        }
+template <class T, class Alloc>
+template <class InputIterator>
+void vector<T, Alloc>::__insert_dispatch(iterator position, InputIterator first,
+    InputIterator last, __false_type) {
+    __range_insert(position, first, last, mystl::iterator_category(first));
+}
 
         // __fill_insert 函数
         template <class T, class Alloc>
