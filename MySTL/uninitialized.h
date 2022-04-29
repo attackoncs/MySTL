@@ -13,23 +13,25 @@
 namespace mystl
 {
 
-    // uninitialized_copy 把[first,last)上内容复制到result为起始处的空间，返回一个迭代器指向赋值结束的尾部
-    template <class InputIterator, class ForwardIterator>
-    inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterator last, ForwardIterator result, __true_type)
-    {
-        return mystl::copy(first, last, result);
-    }
+/*****************************************************************************************/
+// uninitialized_copy
+// 把[first, last)上的内容复制到以 result 为起始处的空间，返回一个迭代器指向复制结束的尾部
+/*****************************************************************************************/
+template <class InputIterator, class ForwardIterator>
+inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterator last,
+    ForwardIterator result, __true_type) {
+    return mystl::copy(first, last, result);  // 如果是 __true_type，调用高层函数 copy
+}
 
-    template <class InputIterator, class ForwardsIterator>
-    inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterator last, ForwardIterator result, __false_type)
-    {
-        ForwardIterator cur = result;
-        for (; first != last; ++first, ++cur)
-        {
-            mystl::construct(&*cur, *first);
-        }
-        return cur;
+template <class InputIterator, class ForwardIterator>
+inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterator last,
+    ForwardIterator result, __false_type) {
+    auto cur = result;
+    for (; first != last; ++first, ++cur) {
+        mystl::construct(&*cur, *first);
     }
+    return cur;
+}
 
     template <class InputIterator, class ForwardIterator, class T>
     inline ForwardIterator __uninitialized_copy(InputIterator first, InputIterator last,

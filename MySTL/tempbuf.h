@@ -78,26 +78,24 @@ namespace mystl
         void operator=(const temporary_buffer &) {}
     };
 
-    template <class ForwardIterator, class T>
-    temporary_buffer<ForwardIterator, T>::temporary_buffer(ForwardIterator first, ForwardIterator last)
-    {
-        typedef typename __type_traits<T>::has_trivial_default_constructor Trivial;
-        try
-        {
-            len = distance(first, last);
-            __allocate_buffer();
-            if (len > 0)
-            {
-                __initialize_buffer(first, Trivial());
-            }
-        }
-        catch (...)
-        {
-            free(buffer);
-            buffer = nullptr;
-            len = 0;
+// 构造函数
+template <class ForwardIterator, class T>
+temporary_buffer<ForwardIterator, T>::
+    temporary_buffer(ForwardIterator first, ForwardIterator last) {
+    typedef typename __type_traits<T>::has_trivial_default_constructor Trivial;
+    try {
+        len = distance(first, last);
+        __allocate_buffer();
+        if (len > 0) {
+            __initialize_buffer(*first, Trivial());
         }
     }
+    catch (...) {
+        free(buffer);
+        buffer = nullptr;
+        len = 0;
+    }
+}
 
     //__cllocate_buffer函数
     template <class ForwardIterator, class T>

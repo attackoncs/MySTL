@@ -6,21 +6,23 @@
 namespace mystl
 {
 
-    // push_heap
-    template <class RandomAccessIterator, class Distance, class T>
-    void __push_heap_aux(RandomAccessIterator first, Distance holeIndex, Distance topIndex, T value)
-    {
-        auto parent = (holeIndex - 1) / 2;
-        while (holeIndex > topIndex && *(first + parent) < value)
-        {
-            //未达到根节点且父节点的值小于插入的值
-            //使用operator< heap为max_heap
-            *(first + holeIndex) = *(first + parent);
-            holeIndex = parent;
-            parent = (holeIndex - 1) / 2;
-        }
-        *(first + holeIndex) = value;
+/*****************************************************************************************/
+// push_heap
+// 该函数接受两个迭代器，表示一个 heap 容器的首尾，并且新元素已经插入到底部容器的最尾端，调整 heap
+/*****************************************************************************************/
+template <class RandomAccessIterator, class Distance, class T>
+void __push_heap_aux(RandomAccessIterator first, Distance holeIndex, 
+                     Distance topIndex, T value) {
+    auto parent = (holeIndex - 1) / 2;             // 父节点与根节点的距离
+    while (holeIndex > topIndex && *(first + parent) < value) {
+        // 未到达根节点且父节点的值小于插入的值
+        // 使用 operator<，所以 heap 为 max-heap
+        *(first + holeIndex) = *(first + parent);  // 洞值为父节点的值
+        holeIndex = parent;                        // 调整洞号，上升至父节点
+        parent = (holeIndex - 1) / 2;              // 新洞号的父节点
     }
+    *(first + holeIndex) = value;                  // 最后令洞值等于新值，调整完毕
+}
 
     template <class RandomAccessIterator, class Distance, class T>
     inline void __push_heap(RandomAccessIterator first, RandomAccessIterator last,
